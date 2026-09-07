@@ -2,7 +2,6 @@ package com.example.rcscontainerbind;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
@@ -10,7 +9,6 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 
 /** One operator screen. Server and container type are configured only by an administrator. */
@@ -67,7 +65,7 @@ public class MainActivity extends Activity {
         instruction.setPadding(0, dp(24), 0, dp(8)); root.addView(instruction);
         binEdit = field("仓位编号 stgBinCode", "", false);
         binEdit.setTextSize(20); binEdit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        binEdit.setSelectAllOnFocus(false); binEdit.setSingleLine(true);
+        binEdit.setSingleLine(true);
         binEdit.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(32)});
         root.addView(binEdit, new LinearLayout.LayoutParams(-1, dp(64)));
         TextView hint = label("每次操作只需填写此编号，服务器和容器类型由管理员设置。", 13);
@@ -161,9 +159,9 @@ public class MainActivity extends Activity {
             })
             .setPositiveButton("使用原编号重试", (d, w) -> send(pending, pendingBin)).show();
     }
-
     private void openAdmin() {
         if (busy) { toast("请等待当前请求结束"); return; }
+        if (pending != null) { toast("请先核实并处理上一次请求"); return; }
         if (!config.hasPin()) { showPinSetup(); return; }
         if (System.currentTimeMillis() < pinLockedUntil) { toast("尝试过多，请稍后再试"); return; }
         EditText pin = field("管理员密码", "", true);
