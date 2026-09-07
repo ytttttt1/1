@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
-import org.json.JSONObject;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
@@ -29,11 +28,13 @@ public final class AppConfig {
     public String qrMode = "auto";
     public String ctnrKey = "ctnrCode", typeKey = "ctnrTyp", binKey = "stgBinCode", positionKey = "positionCode";
 
+    AppConfig() { sp = null; }
+    static AppConfig testConfig() { return new AppConfig(); }
     public AppConfig(Context context) {
         sp = context.getApplicationContext().getSharedPreferences(STORE, Context.MODE_PRIVATE);
         baseUrl = sp.getString("baseUrl", "");
         clientCode = sp.getString("clientCode", "");
-        ctnrTyp = sp.getString("ctnrTyp", sp.getString("ctnrTyp", ""));
+        ctnrTyp = sp.getString("ctnrTyp", "");
         defaultBin = sp.getString("defaultBin", "");
         defaultPosition = sp.getString("defaultPosition", "");
         qrMode = sp.getString("qrMode", "auto");
@@ -64,6 +65,7 @@ public final class AppConfig {
 
     public void validate() throws Exception {
         baseUrl = endpointBase(baseUrl);
+        if (baseUrl.isEmpty()) throw new Exception("请填写 RCS 服务器地址");
         clientCode = clean(clientCode); tokenCode = clean(tokenCode);
         ctnrTyp = clean(ctnrTyp); defaultBin = clean(defaultBin); defaultPosition = clean(defaultPosition);
         if (clientCode.length() > 16 || tokenCode.length() > 64 || ctnrTyp.length() > 16 || defaultBin.length() > 32 || defaultPosition.length() > 32)
@@ -83,7 +85,8 @@ public final class AppConfig {
         String service = "/rcms/services/rest/hikRpcService";
         if (path != null && path.endsWith(service + "/bindCtnrAndBin")) s = s.substring(0, s.length() - "/bindCtnrAndBin".length());
         if (s.endsWith(service)) s = s.substring(0, s.length() - service.length());
-        if (!new URI(s).getPath().isEmpty() && !"/".equals(new URI(s).getPath())) throw new Exception("RCS 地址只需填写协议、IP 和端口");
+        String remaining = new URI(s).getPath();
+        if (remaining != null && !remaining.isEmpty() && !"/".equals(remaining)) throw new Exception("RCS 地址只需填写协议、IP 和端口");
         return s.replaceAll("/+$", "");
     }
 
@@ -106,7 +109,7 @@ public final class AppConfig {
     }
     private static byte[] pinHash(String pin, byte[] salt) throws Exception {
         PBEKeySpec spec = new PBEKeySpec(pin.toCharArray(), salt, 120000, 256);
-        try { return SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).getEncoded(); }
+        try { return SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1").generateSecret(spec).getEncoded(); }
         finally { spec.clearPassword(); }
     }
 
