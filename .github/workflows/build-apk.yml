@@ -3,7 +3,7 @@ name: Build Android APK
 on:
   workflow_dispatch:
   push:
-    branches: [main, feature/admin-config, feature/manual-bin-v1.2]
+    branches: [main, feature/admin-config, feature/manual-bin-v1.2, feature/cancel-task-v1.0]
     paths:
       - 'app/**'
       - 'build.gradle'
@@ -42,7 +42,7 @@ jobs:
       - name: Upload installable APK
         uses: actions/upload-artifact@v4
         with:
-          name: RcsContainerBindApp-debug-apk
+          name: RcsTaskCancelApp-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
