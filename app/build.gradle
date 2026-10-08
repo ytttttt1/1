@@ -5,11 +5,11 @@ android {
     compileSdk 35
 
     defaultConfig {
-        applicationId 'com.example.rcscontainerbind'
+        applicationId 'com.example.rcstaskcancel'
         minSdk 23
         targetSdk 35
-        versionCode 3
-        versionName '1.2'
+        versionCode 1
+        versionName '1.0'
         testInstrumentationRunner 'android.test.InstrumentationTestRunner'
     }
     compileOptions {
